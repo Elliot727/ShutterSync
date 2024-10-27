@@ -22,4 +22,16 @@ func main() {
 	fmt.Printf("Free Space: %d bytes (%.2f GB)\n", drive.FreeSpace, float64(drive.FreeSpace)/(1024*1024*1024))
 	fmt.Printf("Used Space: %d bytes (%.2f GB)\n", drive.UsedSpace, float64(drive.UsedSpace)/(1024*1024*1024))
 	fmt.Printf("Is Mounted: %t\n", drive.IsMounted)
+
+	metadataList, err := drive.ExtractMetaData()
+	if err != nil {
+		log.Fatalf("Error extracting metadata: %v", err)
+	}
+
+	// Print the extracted metadata
+	fmt.Println("Extracted Metadata:")
+	for _, meta := range metadataList {
+		fmt.Printf("File: %s, Size: %d bytes, Created: %s, Modified: %s\n",
+			meta.FileName, meta.FileSize, meta.CreationTime, meta.ModificationTime)
+	}
 }
