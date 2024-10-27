@@ -72,38 +72,28 @@ func (d *Drive) WalkPath(process func(string, os.FileInfo) error) error {
 	return err
 }
 
-// Metadata holds the extracted metadata from a file.
+// ExtractMetaData extracts metadata for a specific file in the Drive's directory.
+func (d *Drive) ExtractMetaData(filePath string) (Metadata, error) {
+	var meta Metadata
 
-// ExtractMetaData extracts metadata from files in the Drive's directory.
-func (d *Drive) ExtractMetaData() ([]Metadata, error) {
-	var metadataList []Metadata
-
-	// Walk the directory and extract metadata from each file
-	err := filepath.Walk(d.Path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		// Skip directories
-		if info.IsDir() {
-			return nil
-		}
-
-		// Create a Metadata instance for the file
-		meta := Metadata{
-			FileName:         info.Name(),
-			FileSize:         uint64(info.Size()),
-			CreationTime:     info.ModTime().Format("2006-01-02 15:04:05"), // Customize as needed
-			ModificationTime: info.ModTime().Format("2006-01-02 15:04:05"),
-		}
-
-		// Append to the metadata list
-		metadataList = append(metadataList, meta)
-		return nil
-	})
-
+	// Get file information
+	info, err := os.Stat(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to walk the directory: %v", err)
+		return meta, fmt.Errorf("failed to get file info: %v", err)
 	}
 
-	return metadataList, nil
+	// Check if the path is a file (not a directory)
+	if info.IsDir() {
+		return meta, fmt.Errorf("the provided path is a directory, not a file: %s", filePath)
+	}
+
+	// Create a Metadata instance for the file
+	meta = Metadata{
+		FileName:         info.Name(),
+		FileSize:         uint64(info.Size()),
+		CreationTime:     info.ModTime().Format("02-01-2006"),
+		ModificationTime: info.ModTime().Format("02-01-2006"),
+	}
+
+	return meta, nil
 }
