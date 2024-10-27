@@ -8,14 +8,31 @@ import (
 )
 
 type FileTransfer struct {
-	SourceDrive      Drive
-	DestinationDrive Drive
+	SourceDrive           Drive
+	DestinationDrive      Drive
+	Overwrite             bool
+	DeleteSourceAfterCopy bool
+	OnFileTransferred     func(src, dest string)
+	OnError               func(file string, err error)
+	Progress              int
 }
 
-func NewFileTransfer(source, destination Drive) *FileTransfer {
+func NewFileTransfer(
+	source, destination Drive,
+	overwrite bool,
+	deleteSourceAfterCopy bool,
+	onFileTransferred func(src, dest string),
+	onError func(file string, err error),
+
+) *FileTransfer {
 	return &FileTransfer{
-		SourceDrive:      source,
-		DestinationDrive: destination,
+		SourceDrive:           source,
+		DestinationDrive:      destination,
+		Overwrite:             overwrite,
+		DeleteSourceAfterCopy: deleteSourceAfterCopy,
+		OnFileTransferred:     onFileTransferred,
+		OnError:               onError,
+		Progress:              0,
 	}
 }
 
@@ -52,6 +69,10 @@ func (ft *FileTransfer) Transfer() error {
 		err = utils.CopyFile(srcFile, destFile)
 		if err != nil {
 			return fmt.Errorf("failed to copy %s to %s: %v", srcFile, destFile, err)
+		}
+		err = os.Remove(srcFile)
+		if err != nil {
+			return fmt.Errorf("failed to delete source file %s: %v", srcFile, err)
 		}
 	}
 
