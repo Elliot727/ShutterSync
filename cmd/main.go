@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	source := "/Users/elliotsilver/Documents/TESTING 123"
-	dest := "/volumes/My Passport"
+	source := "/Volumes/Untitled/DCIM/100MSDCF"
+	dest := "/Volumes/My Passport/Photos"
 
 	sourceDrive, err := types.NewDrive(source)
 	if err != nil {
@@ -20,18 +20,24 @@ func main() {
 		log.Fatalf("Error: %v. Failed to create a drive at path: %v", err, dest)
 	}
 
-	fmt := types.NewFileTransfer(
+	fileTransfer := types.NewFileTransfer(
 		*sourceDrive,
 		*destDrive,
 		true,
-		false,
+		true,
 		func(src, dest string) {
 			fmt.Printf("Transferred %s to %s\n", src, dest)
 		},
-		func(file string, err error) {
-			fmt.Printf("Error transferring %s: %v\n", file, err)
-		},
 	)
 
-	fmt.Transfer()
+	fileTransfer.Transfer()
+
+	organizer := types.NewFileOrganizer(*destDrive, func(src, dest string) {
+		fmt.Printf("Transferred %s to %s\n", src, dest)
+	})
+
+	err = organizer.Organize()
+
+	fmt.Println(err)
+
 }

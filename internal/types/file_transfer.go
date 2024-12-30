@@ -13,7 +13,6 @@ type FileTransfer struct {
 	Overwrite             bool
 	DeleteSourceAfterCopy bool
 	OnFileTransferred     func(src, dest string)
-	OnError               func(file string, err error)
 	Progress              int
 }
 
@@ -22,7 +21,6 @@ func NewFileTransfer(
 	overwrite bool,
 	deleteSourceAfterCopy bool,
 	onFileTransferred func(src, dest string),
-	onError func(file string, err error),
 
 ) *FileTransfer {
 	return &FileTransfer{
@@ -31,7 +29,6 @@ func NewFileTransfer(
 		Overwrite:             overwrite,
 		DeleteSourceAfterCopy: deleteSourceAfterCopy,
 		OnFileTransferred:     onFileTransferred,
-		OnError:               onError,
 		Progress:              0,
 	}
 }
@@ -52,7 +49,6 @@ func (ft *FileTransfer) Transfer() error {
 		// Get the full source file path
 		srcFile := filepath.Join(ft.SourceDrive.Path, file.Name())
 
-		// Extract metadata (assuming you have this function implemented)
 		metadata, err := ft.SourceDrive.ExtractMetaData(srcFile)
 		if err != nil {
 			return fmt.Errorf("failed to extract metadata for %s: %v", file.Name(), err)
@@ -70,10 +66,14 @@ func (ft *FileTransfer) Transfer() error {
 		if err != nil {
 			return fmt.Errorf("failed to copy %s to %s: %v", srcFile, destFile, err)
 		}
-		err = os.Remove(srcFile)
-		if err != nil {
-			return fmt.Errorf("failed to delete source file %s: %v", srcFile, err)
+		if ft.DeleteSourceAfterCopy {
+			err = os.Remove(srcFile)
+			if err != nil {
+				return fmt.Errorf("failed to delete source file %s: %v", srcFile, err)
+			}
 		}
+		ft.Progress += 1
+		ft.OnFileTransferred(srcFile, destFile)
 	}
 
 	return nil

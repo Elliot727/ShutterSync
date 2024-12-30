@@ -91,8 +91,8 @@ func (d *Drive) ExtractMetaData(filePath string) (Metadata, error) {
 	meta = Metadata{
 		FileName:         info.Name(),
 		FileSize:         uint64(info.Size()),
-		CreationTime:     info.ModTime().Format("02-01-2006"),
-		ModificationTime: info.ModTime().Format("02-01-2006"),
+		CreationTime:     info.ModTime().Format("02-01-2006_15-04"),
+		ModificationTime: info.ModTime().Format("02-01-2006_15-04"),
 	}
 
 	return meta, nil
