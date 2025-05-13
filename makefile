@@ -1,36 +1,20 @@
-# Makefile
+APP_NAME=ShutterSync
+BINARY_NAME=shuttersync
+VERSION=1.0.0
+BIN_DIR=bin
+GO_BUILD=go build
 
-# Variables
-BINARY_NAME := shuttersync
-
-# Go commands
-GOCMD := go
-GOBUILD := $(GOCMD) build
-GOCLEAN := $(GOCMD) clean
-GOTEST := $(GOCMD) test
-GORUN := $(GOCMD) run
-GOGET := $(GOCMD) get
-
-# Directories
-CMD_DIR := cmd
-BIN_DIR := bin
-
-.PHONY: all run build test clean deps install
-
-all: build
+.PHONY: build run clean
 
 build:
-	$(GOBUILD) -o $(BIN_DIR)/$(BINARY_NAME) $(CMD_DIR)/*.go
+	@echo "Building binary..."
+	@mkdir -p $(BIN_DIR)
+	$(GO_BUILD) -o $(BIN_DIR)/$(BINARY_NAME) cmd/*.go
 
 run: build
-	$(GORUN) $(CMD_DIR)/*.go
-
-test:
-	$(GOTEST) ./...
+	@echo "Running $(APP_NAME)..."
+	./$(BIN_DIR)/$(BINARY_NAME)
 
 clean:
-	$(GOCLEAN)
-	rm -rf $(BIN_DIR)/$(BINARY_NAME)
-
-install: build
-	mv $(BIN_DIR)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+	@echo "Cleaning up..."
+	rm -rf $(BIN_DIR)

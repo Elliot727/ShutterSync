@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+const bufferSize = 1 * 1024 * 1024
+
 func CopyFile(src, dst string) error {
 	input, err := os.Open(src)
 	if err != nil {
@@ -18,7 +20,8 @@ func CopyFile(src, dst string) error {
 	}
 	defer output.Close()
 
-	_, err = io.Copy(output, input)
+	buf := make([]byte, bufferSize)
+	_, err = io.CopyBuffer(output, input, buf)
 	if err != nil {
 		return err
 	}
